@@ -1,39 +1,19 @@
-import { Navigate, Outlet } from "react-router-dom";
-// import { useQuery } from "@tanstack/react-query";
-import { useAuthStore } from "@/store/authStore";
-// import AuthSkeleton from "./components/common/AuthSkeleton";
-
-interface RouteConfig {
-  permission?: string;
-  scope?: string;
-}
+import React from "react";
+import { Navigate } from "react-router-dom";
 
 interface ProtectedRouteProps {
-  config: RouteConfig;
+  children: React.ReactNode;
 }
 
-const ProtectedRoute = ({ config }: ProtectedRouteProps) => {
-  const { hasPermission, isScopeAllowed, admin } = useAuthStore();
-  // const { isLoading } = useQuery({ queryKey: ["auth"] });
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+  const access_token = localStorage.getItem("access_token");
 
-  // if (isLoading) {
-  //   return <AuthSkeleton />;
-  // }
-
-  if (!admin) {
+  // If no token, redirect to login
+  if (!access_token) {
     return <Navigate to="/login" replace />;
   }
 
-  const hasAccess =
-    !config.permission ||
-    hasPermission(config.permission) ||
-    (config.scope && isScopeAllowed(config.scope));
-
-  if (!hasAccess) {
-    return <Navigate to="/unauthorized" replace />;
-  }
-
-  return <Outlet />;
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;
